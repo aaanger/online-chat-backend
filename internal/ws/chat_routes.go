@@ -15,7 +15,9 @@ func PathHandler(userHandler *users.Handler, wsHandler *ws.Handler) *gin.Engine 
 
 	chat := r.Group("/chat", userHandler.UserIdentity)
 	{
+		chat.POST("/create", wsHandler.CreateChat)
 		chat.GET("/:chatID", wsHandler.ServeWS)
+		chat.POST("/join/:chatID", wsHandler.JoinChat)
 		chat.GET("/all", wsHandler.GetAllChats)
 		chat.GET("/:chatID/clients", wsHandler.GetClientsByChatID)
 	}
