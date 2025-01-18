@@ -1,12 +1,13 @@
-package cmd
+package main
 
 import (
 	"github.com/joho/godotenv"
 	"log"
-	"onlineChat/db"
-	"onlineChat/handler"
+	"onlineChat/internal/routes"
 	"onlineChat/internal/users"
 	"onlineChat/internal/ws"
+	"onlineChat/pkg/db"
+	"onlineChat/pkg/redis"
 	"os"
 )
 
@@ -30,15 +31,25 @@ func main() {
 
 	defer db.Close()
 
-	userRepo := users.NewRepository(db)
-	userService := users.NewUserService(userRepo)
-	userHandler := users.NewHandler(userService)
+	redisCfg := redis.RedisConfig{
+		Address:  os.Getenv("REDIS_ADDR"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+		DB:       0,
+	}
 
-	hub := ws.NewHub()
+	hub := ws.NewHub(redisCfg)
 	go hub.Run()
 
+	userRepo := users.NewUserRepository(db)
+	userService := users.NewUserService(userRepo)
+	userHandler := users.NewUserHandler(userService)
+
+	chatRepo := ws.NewChatRepository(db)
+	chatService := ws.NewChatService(chatRepo)
+	chatHandler := ws.NewChatHandler(hub, chatService)
+
 	srv := new(Server)
-	err = srv.Run(":3000", handler.PathHandler(userHandler))
+	err = srv.Run(":3000", routes.PathHandler(userHandler, chatHandler))
 	if err != nil {
 		log.Fatalf("error running the server: %w", err)
 	}

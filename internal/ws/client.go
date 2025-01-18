@@ -21,9 +21,12 @@ type Client struct {
 }
 
 type Message struct {
-	ChatID   int    `json:"id"`
-	Username string `json:"username"`
-	Content  string `json:"content"`
+	ID        int       `json:"id"`
+	ChatID    int       `json:"chat_id"`
+	UserID    int       `json:"user_id"`
+	Username  string    `json:"username"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func (c *Client) readMessage(h *Handler) {
@@ -53,7 +56,7 @@ func (c *Client) readMessage(h *Handler) {
 			Content:  string(message),
 		}
 
-		err = h.service.SaveChat(c.ID, msg)
+		err = h.service.SaveChat(c.ChatID, c.ID, msg)
 		if err != nil {
 			log.Printf("error saving message: %v", err)
 		}
@@ -67,6 +70,7 @@ func (c *Client) writeMessage(h *Handler) {
 	defer func() {
 		h.Hub.Unregister <- c
 		c.Connection.Close()
+		close(c.Message)
 	}()
 
 	for {
@@ -74,6 +78,11 @@ func (c *Client) writeMessage(h *Handler) {
 		if !ok {
 			return
 		}
-		c.Connection.WriteJSON(message)
+
+		c.Connection.SetWriteDeadline(time.Now().Add(pingPeriod))
+		err := c.Connection.WriteJSON(message)
+		if err != nil {
+			log.Printf("Error writing message %s for chat %s", message, c.ChatID)
+		}
 	}
 }

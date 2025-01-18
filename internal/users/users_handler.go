@@ -9,7 +9,7 @@ type Handler struct {
 	service *UserService
 }
 
-func NewHandler(service *UserService) *Handler {
+func NewUserHandler(service *UserService) *Handler {
 	return &Handler{
 		service: service,
 	}

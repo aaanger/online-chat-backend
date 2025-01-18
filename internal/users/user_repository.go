@@ -9,7 +9,7 @@ type UserRepository struct {
 	db *sql.DB
 }
 
-func NewRepository(db *sql.DB) *UserRepository {
+func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{
 		db: db,
 	}
