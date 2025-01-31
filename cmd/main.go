@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/joho/godotenv"
 	"log"
+	"net/http"
 	"onlineChat/internal/routes"
 	"onlineChat/internal/users"
 	"onlineChat/internal/ws"
@@ -10,6 +11,18 @@ import (
 	"onlineChat/pkg/redis"
 	"os"
 )
+
+type Server struct {
+	httpServer *http.Server
+}
+
+func (srv *Server) Run(port string, handler http.Handler) error {
+	srv.httpServer = &http.Server{
+		Addr:    port,
+		Handler: handler,
+	}
+	return srv.httpServer.ListenAndServe()
+}
 
 func main() {
 	err := godotenv.Load()

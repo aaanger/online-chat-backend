@@ -2,6 +2,7 @@ package users
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -27,9 +28,10 @@ func (h *Handler) SignUp(c *gin.Context) {
 
 	res, err := h.service.CreateUser(input)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
 		})
+		logrus.Errorf("signup error: %s", err)
 		return
 	}
 
@@ -48,7 +50,7 @@ func (h *Handler) SignIn(c *gin.Context) {
 
 	user, err := h.service.Login(input.Email, input.Password)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
 		})
 		return

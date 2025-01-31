@@ -19,7 +19,7 @@ func (r *UserRepository) CreateUser(user User) (*User, error) {
 	row := r.db.QueryRow(`INSERT INTO users (email, username, password_hash) VALUES($1, $2, $3) RETURNING id;`, user.Email, user.Username, user.Password)
 	err := row.Scan(&user.ID)
 	if err != nil {
-		return nil, fmt.Errorf("repository create user: %w", err)
+		return nil, err
 	}
 	return &user, nil
 }

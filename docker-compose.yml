@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${PSQL_PASSWORD}
       POSTGRES_DB: ${PSQL_DBNAME}
     ports:
-      - 5434:5432
+      - 5437:5432
   chat-redis:
     image: redis
     restart: always

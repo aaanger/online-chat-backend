@@ -25,7 +25,7 @@ func NewUserService(repo *UserRepository) *UserService {
 func (us *UserService) CreateUser(user User) (*User, error) {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, fmt.Errorf("service create user: %w", err)
+		return nil, err
 	}
 	user.Password = string(passwordHash)
 	return us.repo.CreateUser(user)
